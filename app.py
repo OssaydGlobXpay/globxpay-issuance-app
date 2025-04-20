@@ -66,11 +66,14 @@ def convert_to_csv(data):
     from io import StringIO
 
     string_buffer = StringIO()
-    writer = csv.writer(string_buffer, delimiter=";", quoting=csv.QUOTE_NONE, escapechar='\\', lineterminator='\n')
-    writer.writerows(data)
+    writer = csv.writer(string_buffer, delimiter=";", quotechar='', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
 
-    csv_string = string_buffer.getvalue()
-    return csv_string.encode("utf-8")  # ✅ This returns proper bytes
+    for row in data:
+        formatted_row = [f'="{cell.strip().replace("=", "").replace("\"", "")}"' if cell else "" for cell in row]
+        writer.writerow(formatted_row)
+
+    return string_buffer.getvalue().encode("utf-8")
+
 
 
 
