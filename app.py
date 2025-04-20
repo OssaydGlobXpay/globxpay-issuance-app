@@ -74,14 +74,13 @@ def convert_to_csv(data):
         lineterminator="\n"
     )
 
+    # Just clean and trim values — NO wrapping
     for row in data:
-        formatted_row = [
-            f'="{cell.strip().replace("=", "").replace("\"", "")}"' if cell else ""
-            for cell in row
-        ]
+        formatted_row = [cell.strip() if cell else "" for cell in row]
         writer.writerow(formatted_row)
 
     return string_buffer.getvalue().encode("utf-8")
+
 
 
 
