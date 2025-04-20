@@ -66,13 +66,23 @@ def convert_to_csv(data):
     from io import StringIO
 
     string_buffer = StringIO()
-    writer = csv.writer(string_buffer, delimiter=";", quotechar='', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+    writer = csv.writer(
+        string_buffer,
+        delimiter=";",
+        quoting=csv.QUOTE_NONE,
+        escapechar="\\",
+        lineterminator="\n"
+    )
 
     for row in data:
-        formatted_row = [f'="{cell.strip().replace("=", "").replace("\"", "")}"' if cell else "" for cell in row]
+        formatted_row = [
+            f'="{cell.strip().replace("=", "").replace("\"", "")}"' if cell else ""
+            for cell in row
+        ]
         writer.writerow(formatted_row)
 
     return string_buffer.getvalue().encode("utf-8")
+
 
 
 
