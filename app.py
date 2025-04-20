@@ -64,9 +64,10 @@ def validate_and_clean(df):
 
 def convert_to_csv(data):
     output = BytesIO()
-    writer = csv.writer(output, delimiter=";", quoting=csv.QUOTE_NONE, escapechar='\\')
+    writer = csv.writer(output, delimiter=";", quoting=csv.QUOTE_NONE, escapechar='\\', lineterminator='\n')
     writer.writerows(data)
-    return output.getvalue()
+    return output.getvalue().decode("utf-8").encode("utf-8")  # Ensures it returns UTF-8 bytes
+
 
 if uploaded_file:
     try:
