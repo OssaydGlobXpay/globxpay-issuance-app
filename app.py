@@ -63,10 +63,15 @@ def validate_and_clean(df):
     return cleaned_rows, errors
 
 def convert_to_csv(data):
-    output = BytesIO()
-    writer = csv.writer(output, delimiter=";", quoting=csv.QUOTE_NONE, escapechar='\\', lineterminator='\n')
+    from io import StringIO
+
+    string_buffer = StringIO()
+    writer = csv.writer(string_buffer, delimiter=";", quoting=csv.QUOTE_NONE, escapechar='\\', lineterminator='\n')
     writer.writerows(data)
-    return output.getvalue()  # <-- Must return bytes only (no decode/encode)
+
+    csv_string = string_buffer.getvalue()
+    return csv_string.encode("utf-8")  # ✅ This returns proper bytes
+
 
 
 
