@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from io import BytesIO
+from io import StringIO
 from datetime import datetime
 import csv
 
@@ -30,14 +30,15 @@ mandatory_fields = {
     24: "City Code",
     25: "Country Code",
     26: "Address Line 1",
-    32: "Bank Account Number",     # NEW
+    32: "Bank Account Number",
     34: "Account Name",
-    35: "Credit Limit",            # NEW
+    35: "Credit Limit",
     38: "Cardholder Name",
     44: "Product Code",
     53: "ID Expiry Date"
 }
 
+# === CLEANING + VALIDATION ===
 def validate_and_clean(df):
     errors = []
     cleaned_rows = []
@@ -47,14 +48,12 @@ def validate_and_clean(df):
         row_values = []
 
         for i in range(76):
-            val = str(row[i]).replace("-", "").strip() if i < len(row) and pd.notna(row[i]) else ""
+            val = str(row[i]).strip() if i < len(row) and pd.notna(row[i]) else ""
 
             if i in mandatory_fields and not val:
                 row_errors.append(f"Missing '{mandatory_fields[i]}'")
 
-            # Wrap all as Excel-safe string =TEXT
-            val_wrapped = f'="{val}"' if val else ""
-            row_values.append(val_wrapped)
+            row_values.append(val)
 
         if row_errors:
             errors.append(f"❌ Row {idx + 2}: " + ", ".join(row_errors))  # +2 for Excel row number
@@ -62,9 +61,8 @@ def validate_and_clean(df):
 
     return cleaned_rows, errors
 
+# === CONVERT TO CLEAN CSV ===
 def convert_to_csv(data):
-    from io import StringIO
-
     string_buffer = StringIO()
     writer = csv.writer(
         string_buffer,
@@ -73,24 +71,14 @@ def convert_to_csv(data):
         escapechar="\\",
         lineterminator="\n"
     )
-
-    # Just clean and trim values — NO wrapping
-    for row in data:
-        formatted_row = [cell.strip() if cell else "" for cell in row]
-        writer.writerow(formatted_row)
-
+    writer.writerows(data)
     return string_buffer.getvalue().encode("utf-8")
 
-
-
-
-
-
-
+# === APP LOGIC ===
 if uploaded_file:
     try:
-        df = pd.read_excel(uploaded_file, dtype=str)
-        df = df.iloc[:, :76].fillna("").astype(str)
+        df = pd.read_excel(uploaded_file, dtype=str).fillna("").astype(str)
+        df = df.iloc[:, :76]  # Trim to 76 columns max
 
         st.success(f"✅ Loaded {len(df)} rows successfully!")
 
