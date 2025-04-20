@@ -66,7 +66,8 @@ def convert_to_csv(data):
     output = BytesIO()
     writer = csv.writer(output, delimiter=";", quoting=csv.QUOTE_NONE, escapechar='\\', lineterminator='\n')
     writer.writerows(data)
-    return output.getvalue().decode("utf-8").encode("utf-8")  # Ensures it returns UTF-8 bytes
+    return output.getvalue()  # <-- Must return bytes only (no decode/encode)
+
 
 
 if uploaded_file:
